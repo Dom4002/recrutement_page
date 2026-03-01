@@ -3,211 +3,388 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidature | CORP-HR</title>
+    <title>Candidature | SIRH-SECURE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
-        .input-field { @apply w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all; }
-        .btn-primary { @apply w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg hover:bg-blue-700 shadow-lg shadow-blue-200 active:scale-[0.98] transition-all; }
+        .step-container { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .step-container.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="py-10 px-4">
 
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-3xl mx-auto relative">
         
         <!-- HEADER -->
-        <div class="flex items-center justify-between mb-8">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                    <i class="fa-solid fa-paper-plane text-xl"></i>
+        <div class="flex items-center justify-between mb-10">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-500/30">
+                    <i class="fa-solid fa-paper-plane text-2xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">Postuler</h1>
-                    <p class="text-sm text-slate-500 font-medium">Rejoignez CORP-HR en quelques clics</p>
+                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Postuler</h1>
+                    <p class="text-sm text-slate-500 font-medium">Rejoignez notre équipe d'experts</p>
                 </div>
             </div>
-            <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Secure Portal</span>
+            <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest hidden sm:block">SIRH Portal</span>
         </div>
 
-        <!-- FORMULAIRE -->
-        <form id="applyForm" onsubmit="handleApply(event)" class="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl overflow-hidden">
-            <div class="p-8 md:p-12 space-y-10">
+        <!-- FORMULAIRE WIZARD -->
+        <form id="applyForm" onsubmit="handleApply(event)" class="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl overflow-hidden relative">
+            
+            <!-- BARRE DE PROGRESSION -->
+            <div class="bg-slate-50 px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div id="dot-1" class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold transition-all">1</div>
+                    <div id="line-1" class="w-8 h-1 bg-slate-200 rounded-full transition-all"></div>
+                    <div id="dot-2" class="w-8 h-8 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-xs font-bold transition-all">2</div>
+                    <div id="line-2" class="w-8 h-1 bg-slate-200 rounded-full transition-all"></div>
+                    <div id="dot-3" class="w-8 h-8 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-xs font-bold transition-all">3</div>
+                </div>
+                <span id="step-title" class="text-xs font-bold uppercase tracking-widest text-blue-600">Identité</span>
+            </div>
+
+            <div class="p-8 md:p-12">
                 
-                <!-- SECTION 1 : INFOS PERSO -->
-                <div class="space-y-6">
-                    <h2 class="text-xs font-black uppercase text-blue-600 tracking-widest flex items-center gap-2">
-                        <i class="fa-solid fa-user-circle"></i> Informations Personnelles
-                    </h2>
+                <!-- ÉTAPE 1 : INFOS PERSO -->
+                <div id="step-1" class="step-container active space-y-6">
+                    <h2 class="text-xl font-black text-slate-800 mb-6">Parlez-nous de vous</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="space-y-2">
-                            <label class="text-[11px] font-bold text-slate-500 ml-1">NOM ET PRÉNOM</label>
-                            <input type="text" name="nom_complet" placeholder="Ex: Jean Dupont" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 transition-all">
+                            <label class="text-[11px] font-bold text-slate-500 ml-1">NOM ET PRÉNOM *</label>
+                            <input type="text" id="inp-nom" name="nom_complet" placeholder="Ex: Jean Dupont" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[11px] font-bold text-slate-500 ml-1">E-MAIL</label>
-                            <input type="email" name="email" placeholder="nom@exemple.com" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 transition-all">
+                            <label class="text-[11px] font-bold text-slate-500 ml-1">E-MAIL *</label>
+                            <input type="email" id="inp-email" name="email" placeholder="nom@exemple.com" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[11px] font-bold text-slate-500 ml-1">TÉLÉPHONE</label>
-                            <input type="tel" name="telephone" placeholder="+229 ..." required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 transition-all">
+                            <label class="text-[11px] font-bold text-slate-500 ml-1">TÉLÉPHONE *</label>
+                            <input type="tel" id="inp-tel" name="telephone" placeholder="+229 ..." required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                         </div>
                         <div id="field-dob" class="space-y-2">
                             <label class="text-[11px] font-bold text-slate-500 ml-1">DATE DE NAISSANCE</label>
-                            <input type="date" name="date_naissance" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 transition-all">
+                            <input type="date" name="date_naissance" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        </div>
+                        <!-- NOUVEAU CHAMP : ADRESSE -->
+                        <div id="field-addr" class="space-y-2 md:col-span-2">
+                            <label class="text-[11px] font-bold text-slate-500 ml-1">ADRESSE DE RÉSIDENCE</label>
+                            <input type="text" name="adresse" placeholder="Ex: Cotonou, Quartier Zogbo..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                         </div>
                     </div>
                 </div>
 
-                <!-- SECTION 2 : POSTE -->
-                <div class="space-y-6">
-                    <h2 class="text-xs font-black uppercase text-blue-600 tracking-widest flex items-center gap-2">
-                        <i class="fa-solid fa-briefcase"></i> Votre Candidature
-                    </h2>
-                    <div class="space-y-2">
-                        <label class="text-[11px] font-bold text-slate-500 ml-1">POSTE VISÉ</label>
-                        <select name="poste_vise" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none appearance-none font-semibold text-slate-700 cursor-pointer focus:border-blue-500">
-                            <option>DEVELOPPEUR FULLSTACK</option>
-                            <option>AGENT DE SÉCURITÉ</option>
-                            <option>RESPONSABLE RH</option>
-                            <option>COMPTABLE</option>
-                        </select>
+                <!-- ÉTAPE 2 : POSTE & PROFIL PROFESSIONNEL -->
+                <div id="step-2" class="step-container space-y-6">
+                    <h2 class="text-xl font-black text-slate-800 mb-6">Profil Professionnel</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="text-[11px] font-bold text-slate-500 ml-1">POSTE VISÉ *</label>
+                            <div class="relative">
+                                <select id="inp-poste" name="poste_vise" required class="w-full p-4 bg-blue-50 border border-blue-100 rounded-2xl outline-none appearance-none font-bold text-blue-800 cursor-pointer focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-- Choisissez un poste --</option>
+                                    <option value="DEVELOPPEUR FULLSTACK">DÉVELOPPEUR FULLSTACK</option>
+                                    <option value="AGENT DE SÉCURITÉ">AGENT DE SÉCURITÉ</option>
+                                    <option value="RESPONSABLE RH">RESPONSABLE RH</option>
+                                    <option value="COMPTABLE">COMPTABLE</option>
+                                    <option value="DÉLÉGUÉ MÉDICAL">DÉLÉGUÉ MÉDICAL</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <!-- NOUVEAU CHAMP : EXPÉRIENCE -->
+                        <div id="field-exp" class="space-y-2">
+                            <label class="text-[11px] font-bold text-slate-500 ml-1">EXPÉRIENCE DANS LE POSTE</label>
+                            <select name="experience" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none font-semibold text-slate-700 focus:ring-2 focus:ring-blue-500">
+                                <option value="">-- Précisez --</option>
+                                <option value="Débutant (0-1 an)">Débutant (0-1 an)</option>
+                                <option value="1 à 3 ans">1 à 3 ans</option>
+                                <option value="3 à 5 ans">3 à 5 ans</option>
+                                <option value="Plus de 5 ans">+5 ans d'expérience</option>
+                            </select>
+                        </div>
+
+                        <!-- NOUVEAU CHAMP : DISPONIBILITÉ -->
+                        <div id="field-disp" class="space-y-2">
+                            <label class="text-[11px] font-bold text-slate-500 ml-1">DISPONIBILITÉ</label>
+                            <select name="disponibilite" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none font-semibold text-slate-700 focus:ring-2 focus:ring-blue-500">
+                                <option value="">-- Précisez --</option>
+                                <option value="Immédiate">Immédiate</option>
+                                <option value="Dans 1 mois">Dans 1 mois</option>
+                                <option value="Préavis en cours">Préavis en cours</option>
+                            </select>
+                        </div>
+
+                        <!-- NOUVEAU CHAMP : PRÉTENTIONS -->
+                        <div id="field-sal" class="space-y-2 md:col-span-2">
+                            <label class="text-[11px] font-bold text-slate-500 ml-1">PRÉTENTIONS SALARIALES (CFA / Mois)</label>
+                            <input type="text" name="pretentions" placeholder="Ex: 200 000" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono font-bold">
+                        </div>
                     </div>
                 </div>
 
-                <!-- SECTION 3 : FICHIERS -->
-                <div class="space-y-6">
-                    <h2 class="text-xs font-black uppercase text-blue-600 tracking-widest flex items-center gap-2">
-                        <i class="fa-solid fa-paperclip"></i> Documents justificatifs (Max 5Mo)
-                    </h2>
+                <!-- ÉTAPE 3 : FICHIERS -->
+                <div id="step-3" class="step-container space-y-6">
+                    <h2 class="text-xl font-black text-slate-800 mb-2">Vos documents</h2>
+                    <p class="text-xs text-slate-500 mb-6 italic"><i class="fa-solid fa-magic text-blue-500"></i> Les photos (JPG/PNG) seront automatiquement converties en PDF propre.</p>
+                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="relative group">
-                            <input type="file" name="cv" id="cv" class="hidden" onchange="validateFile(this)" required>
-                            <label for="cv" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:bg-blue-50 transition-all h-full text-center">
-                                <i class="fa-solid fa-file-pdf text-slate-300 text-xl mb-2"></i>
-                                <span class="text-[10px] font-bold text-slate-500">CV (Obligatoire)</span>
-                                <span id="label-cv" class="text-[9px] text-blue-600 font-bold mt-1 truncate w-full px-2"></span>
+                            <input type="file" name="cv" id="cv" class="hidden" accept="image/*,application/pdf" onchange="validateFile(this)" required>
+                            <label for="cv" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 bg-slate-50 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all h-full text-center group-hover:shadow-md">
+                                <i class="fa-solid fa-file-pdf text-slate-300 text-2xl mb-3 group-hover:text-blue-500 transition-colors"></i>
+                                <span class="text-xs font-black text-slate-600 uppercase tracking-wide">CV (Obligatoire)</span>
+                                <span id="label-cv" class="text-[10px] text-blue-600 font-bold mt-2 truncate w-full px-2"></span>
                             </label>
                         </div>
                         <div id="field-dip" class="relative group">
-                            <input type="file" name="diploma" id="diploma" class="hidden" onchange="validateFile(this)">
-                            <label for="diploma" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-50 transition-all h-full text-center">
-                                <i class="fa-solid fa-graduation-cap text-slate-300 text-xl mb-2"></i>
-                                <span class="text-[10px] font-bold text-slate-500">Diplômes / Attestations</span>
-                                <span id="label-diploma" class="text-[9px] text-slate-600 font-bold mt-1 truncate w-full px-2"></span>
+                            <input type="file" name="diploma" id="diploma" class="hidden" accept="image/*,application/pdf" onchange="validateFile(this)">
+                            <label for="diploma" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 bg-slate-50 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all h-full text-center group-hover:shadow-md">
+                                <i class="fa-solid fa-graduation-cap text-slate-300 text-2xl mb-3 group-hover:text-blue-500 transition-colors"></i>
+                                <span class="text-xs font-black text-slate-600 uppercase tracking-wide">Dernier Diplôme</span>
+                                <span id="label-diploma" class="text-[10px] text-blue-600 font-bold mt-2 truncate w-full px-2"></span>
                             </label>
                         </div>
                         <div id="field-lm" class="relative group">
-                            <input type="file" name="lm" id="lm" class="hidden" onchange="validateFile(this)">
-                            <label for="lm" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-50 transition-all h-full text-center">
-                                <i class="fa-solid fa-envelope-open-text text-slate-300 text-xl mb-2"></i>
-                                <span class="text-[10px] font-bold text-slate-500">Lettre de Motivation</span>
-                                <span id="label-lm" class="text-[9px] text-blue-600 font-bold mt-1 truncate w-full px-2"></span>
+                            <input type="file" name="lm" id="lm" class="hidden" accept="image/*,application/pdf" onchange="validateFile(this)">
+                            <label for="lm" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 bg-slate-50 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all h-full text-center group-hover:shadow-md">
+                                <i class="fa-solid fa-envelope-open-text text-slate-300 text-2xl mb-3 group-hover:text-blue-500 transition-colors"></i>
+                                <span class="text-xs font-black text-slate-600 uppercase tracking-wide">Lettre de Motiv.</span>
+                                <span id="label-lm" class="text-[10px] text-blue-600 font-bold mt-2 truncate w-full px-2"></span>
                             </label>
                         </div>
                         <div id="field-id" class="relative group">
-                            <input type="file" name="id_card" id="id_card" class="hidden" onchange="validateFile(this)">
-                            <label for="id_card" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-50 transition-all h-full text-center">
-                                <i class="fa-solid fa-id-card text-slate-300 text-xl mb-2"></i>
-                                <span class="text-[10px] font-bold text-slate-500">Pièce Identité</span>
-                                <span id="label-id_card" class="text-[9px] text-blue-600 font-bold mt-1 truncate w-full px-2"></span>
+                            <input type="file" name="id_card" id="id_card" class="hidden" accept="image/*,application/pdf" onchange="validateFile(this)">
+                            <label for="id_card" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 bg-slate-50 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all h-full text-center group-hover:shadow-md">
+                                <i class="fa-solid fa-id-card text-slate-300 text-2xl mb-3 group-hover:text-blue-500 transition-colors"></i>
+                                <span class="text-xs font-black text-slate-600 uppercase tracking-wide">Pièce Identité</span>
+                                <span id="label-id_card" class="text-[10px] text-blue-600 font-bold mt-2 truncate w-full px-2"></span>
                             </label>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" id="btnSubmit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all flex items-center justify-center gap-3">
-                    Soumettre ma candidature <i class="fa-solid fa-arrow-right"></i>
-                </button>
+                <!-- BOUTONS DE NAVIGATION -->
+                <div class="mt-10 flex items-center justify-between pt-6 border-t border-slate-100">
+                    <button type="button" id="btn-prev" onclick="changeStep(-1)" class="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-all invisible">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Précédent
+                    </button>
+                    
+                    <button type="button" id="btn-next" onclick="changeStep(1)" class="px-8 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 shadow-lg transition-all">
+                        Suivant <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+
+                    <button type="submit" id="btn-submit" class="hidden px-8 py-4 bg-emerald-600 text-white rounded-xl font-black uppercase tracking-widest hover:bg-emerald-500 shadow-lg shadow-emerald-200 transition-all">
+                        <i class="fa-solid fa-check-double mr-2"></i> Terminer
+                    </button>
+                </div>
+
             </div>
         </form>
 
         <!-- FOOTER & CONFIG DISCRET -->
         <div class="mt-8 flex justify-between items-center px-4">
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">© 2026 CORP-HR Group</p>
-            <!-- BOUTON ADMIN -->
             <button id="btn-admin-settings" onclick="document.getElementById('configPanel').classList.remove('hidden')" class="text-slate-300 hover:text-slate-600 transition-colors">
                 <i class="fa-solid fa-gear text-lg"></i>
             </button>
         </div>
     </div>
 
-    <!-- PANEL CONFIGURATION (MODAL) -->
+    <!-- PANEL CONFIGURATION (MODAL ADMIN) - MAINTENANT EN GRILLE POUR GAIN DE PLACE -->
     <div id="configPanel" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-[2rem] p-10 max-w-sm w-full shadow-2xl">
-            <h2 class="font-black text-xl mb-6 text-slate-800 tracking-tight text-center">Lien de Partage</h2>
-            <div class="space-y-4 mb-8">
-                <label class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl cursor-pointer border border-slate-100">
-                    <span class="text-sm font-bold text-slate-600">Masquer Naissance</span>
-                    <input type="checkbox" id="check-dob" class="w-5 h-5 accent-blue-600">
+        <div class="bg-white rounded-[2rem] p-8 max-w-2xl w-full shadow-2xl">
+            <h2 class="font-black text-xl mb-6 text-slate-800 tracking-tight text-center">Personnalisation du Lien de Partage</h2>
+            
+            <p class="text-xs text-slate-500 text-center mb-6">Sélectionnez les champs que vous souhaitez <b>MASQUER</b> pour simplifier le formulaire.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer border border-slate-100 hover:border-blue-300 transition-colors">
+                    <span class="text-xs font-bold text-slate-600">Date de Naissance</span>
+                    <input type="checkbox" id="check-dob" class="w-4 h-4 accent-blue-600">
                 </label>
-                <label class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl cursor-pointer border border-slate-100">
-                    <span class="text-sm font-bold text-slate-600">Masquer Lettre Motiv</span>
-                    <input type="checkbox" id="check-lm" class="w-5 h-5 accent-blue-600">
+                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer border border-slate-100 hover:border-blue-300 transition-colors">
+                    <span class="text-xs font-bold text-slate-600">Adresse Résidence</span>
+                    <input type="checkbox" id="check-addr" class="w-4 h-4 accent-blue-600">
                 </label>
-                <label class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl cursor-pointer border border-slate-100">
-                    <span class="text-sm font-bold text-slate-600">Masquer Diplômes</span>
-                    <input type="checkbox" id="check-dip" class="w-5 h-5 accent-blue-600">
+                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer border border-slate-100 hover:border-blue-300 transition-colors">
+                    <span class="text-xs font-bold text-slate-600">Années d'Expérience</span>
+                    <input type="checkbox" id="check-exp" class="w-4 h-4 accent-blue-600">
                 </label>
-                <label class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl cursor-pointer border border-slate-100">
-                    <span class="text-sm font-bold text-slate-600">Masquer Pièce ID</span>
-                    <input type="checkbox" id="check-id" class="w-5 h-5 accent-blue-600">
+                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer border border-slate-100 hover:border-blue-300 transition-colors">
+                    <span class="text-xs font-bold text-slate-600">Disponibilité</span>
+                    <input type="checkbox" id="check-disp" class="w-4 h-4 accent-blue-600">
+                </label>
+                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer border border-slate-100 hover:border-blue-300 transition-colors">
+                    <span class="text-xs font-bold text-slate-600">Prétentions Salariales</span>
+                    <input type="checkbox" id="check-sal" class="w-4 h-4 accent-blue-600">
+                </label>
+                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer border border-slate-100 hover:border-blue-300 transition-colors">
+                    <span class="text-xs font-bold text-slate-600">Lettre de Motivation</span>
+                    <input type="checkbox" id="check-lm" class="w-4 h-4 accent-blue-600">
+                </label>
+                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer border border-slate-100 hover:border-blue-300 transition-colors">
+                    <span class="text-xs font-bold text-slate-600">Diplômes</span>
+                    <input type="checkbox" id="check-dip" class="w-4 h-4 accent-blue-600">
+                </label>
+                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer border border-slate-100 hover:border-blue-300 transition-colors">
+                    <span class="text-xs font-bold text-slate-600">Pièce d'Identité</span>
+                    <input type="checkbox" id="check-id" class="w-4 h-4 accent-blue-600">
                 </label>
             </div>
-            <button onclick="copyConfiguredLink()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg mb-3">Générer & Copier le lien</button>
-            <button onclick="document.getElementById('configPanel').classList.add('hidden')" class="w-full text-slate-400 font-bold text-xs uppercase text-center mt-2">Annuler</button>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="document.getElementById('configPanel').classList.add('hidden')" class="w-full sm:w-1/3 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-sm hover:bg-slate-200">Annuler</button>
+                <button onclick="copyConfiguredLink()" class="w-full sm:w-2/3 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-blue-700">Générer & Copier le lien</button>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        const API_URL = "https://sirh-secure-backend.onrender.com/api/ingest-candidate";
+        const API_URL = "https://sirh-supabase-v2-t03q.onrender.com/api/ingest-candidate";
+        let currentStep = 1;
 
-        // 1. SECURITÉ : MASQUER L'ADMIN SI LE LIEN EST PARTAGÉ
+        // ==========================================
+        // 1. LOGIQUE D'INITIALISATION ET DE MASQUAGE
+        // ==========================================
         window.onload = () => {
             const params = new URLSearchParams(window.location.search);
             
-            // Si le paramètre 'shared' est présent, on détruit littéralement le bouton Admin
             if (params.has('shared')) {
                 const adminBtn = document.getElementById('btn-admin-settings');
-                if(adminBtn) adminBtn.remove(); // On ne fait pas juste le masquer, on le retire du code
+                if(adminBtn) adminBtn.remove(); 
             }
 
-            // Application des masques
-            if (params.get('hdob') === '1') document.getElementById('field-dob').classList.add('hidden');
-            if (params.get('hlm') === '1') document.getElementById('field-lm').classList.add('hidden');
-            if (params.get('hdip') === '1') document.getElementById('field-dip').classList.add('hidden');
-            if (params.get('hid') === '1') document.getElementById('field-id').classList.add('hidden');
+            // Fonction pour masquer ET retirer le 'required' pour ne pas bloquer le formulaire
+            const hideField = (id) => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.classList.add('hidden');
+                    // On retire le required s'il y en a un à l'intérieur
+                    const inputs = el.querySelectorAll('input, select, textarea');
+                    inputs.forEach(inp => inp.removeAttribute('required'));
+                }
+            };
+
+            // Masquage dynamique selon les paramètres URL
+            if (params.get('hdob') === '1') hideField('field-dob');
+            if (params.get('hlm') === '1') hideField('field-lm');
+            if (params.get('hdip') === '1') hideField('field-dip');
+            if (params.get('hid') === '1') hideField('field-id');
+            // Les nouveaux champs :
+            if (params.get('haddr') === '1') hideField('field-addr');
+            if (params.get('hexp') === '1') hideField('field-exp');
+            if (params.get('hdisp') === '1') hideField('field-disp');
+            if (params.get('hsal') === '1') hideField('field-sal');
         };
 
-        // 2. GÉNÉRATION DU LIEN AVEC PARAMETRE 'SHARED' OBLIGATOIRE
-        function copyConfiguredLink() {
-            const hDob = document.getElementById('check-dob').checked ? '1' : '0';
-            const hLm = document.getElementById('check-lm').checked ? '1' : '0';
-            const hDip = document.getElementById('check-dip').checked ? '1' : '0';
-            const hId = document.getElementById('check-id').checked ? '1' : '0';
+        // ==========================================
+        // 2. LOGIQUE DU WIZARD (ÉTAPE PAR ÉTAPE)
+        // ==========================================
+        function validateCurrentStep() {
+            if (currentStep === 1) {
+                const nom = document.getElementById('inp-nom').value;
+                const email = document.getElementById('inp-email').value;
+                const tel = document.getElementById('inp-tel').value;
+                if (!nom || !email || !tel) {
+                    Swal.fire('Oups', 'Veuillez remplir tous les champs obligatoires (*)', 'warning');
+                    return false;
+                }
+            }
+            if (currentStep === 2) {
+                const poste = document.getElementById('inp-poste').value;
+                if (!poste) {
+                    Swal.fire('Oups', 'Veuillez sélectionner le poste visé', 'warning');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function changeStep(direction) {
+            if (direction === 1 && !validateCurrentStep()) return;
+
+            currentStep += direction;
             
-            const baseUrl = window.location.origin + window.location.pathname;
+            // Gestion de l'affichage des sections
+            document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+
+            // Mise à jour de la barre de progression
+            const titles =["", "Identité", "Profil Pro", "Documents"];
+            document.getElementById('step-title').innerText = titles[currentStep];
+
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if (i === currentStep) {
+                    dot.className = "w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold transition-all shadow-md";
+                } else if (i < currentStep) {
+                    dot.className = "w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold transition-all";
+                    dot.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else {
+                    dot.className = "w-8 h-8 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center text-xs font-bold transition-all";
+                    dot.innerHTML = i;
+                }
+            }
+
+            if (currentStep > 1) document.getElementById('line-1').classList.replace('bg-slate-200', 'bg-emerald-500');
+            else document.getElementById('line-1').classList.replace('bg-emerald-500', 'bg-slate-200');
             
-            // On ajoute TOUJOURS shared=1 pour désactiver le bouton admin chez le candidat
-            const finalUrl = `${baseUrl}?shared=1&hdob=${hDob}&hlm=${hLm}&hdip=${hDip}&hid=${hId}`;
-            
-            navigator.clipboard.writeText(finalUrl).then(() => {
-                Swal.fire({ 
-                    icon: 'success', 
-                    title: 'Lien Candidat prêt !', 
-                    text: 'Le bouton réglages est désormais désactivé pour ce lien.', 
-                    confirmButtonColor: '#2563eb' 
-                });
-                document.getElementById('configPanel').classList.add('hidden');
+            if (currentStep > 2) document.getElementById('line-2').classList.replace('bg-slate-200', 'bg-emerald-500');
+            else document.getElementById('line-2').classList.replace('bg-emerald-500', 'bg-slate-200');
+
+            // Gestion des boutons
+            document.getElementById('btn-prev').style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+            document.getElementById('btn-next').classList.toggle('hidden', currentStep === 3);
+            document.getElementById('btn-submit').classList.toggle('hidden', currentStep !== 3);
+        }
+
+        // ==========================================
+        // 3. LOGIQUE CONVERSION IMAGE VERS PDF
+        // ==========================================
+        async function convertImageToPDF(file) {
+            return new Promise((resolve) => {
+                if (file.type === 'application/pdf') return resolve(file);
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const { jsPDF } = window.jspdf;
+                        const orientation = img.width > img.height ? 'l' : 'p';
+                        const pdf = new jsPDF(orientation, 'mm', 'a4');
+                        const pdfWidth = pdf.internal.pageSize.getWidth();
+                        const pdfHeight = (img.height * pdfWidth) / img.width;
+
+                        pdf.addImage(img.src, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                        const pdfBlob = pdf.output('blob');
+                        const newFileName = file.name.split('.')[0] + '_converti.pdf';
+                        const newFile = new File([pdfBlob], newFileName, { type: 'application/pdf' });
+                        
+                        resolve(newFile);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
             });
         }
 
+        // ==========================================
+        // 4. GESTION DES FICHIERS & SOUMISSION
+        // ==========================================
         function validateFile(input) {
             const file = input.files[0];
             if (file && file.size > 5 * 1024 * 1024) {
-                Swal.fire({ icon: 'warning', title: 'Fichier trop lourd', text: 'Limite de 5 Mo.' });
+                Swal.fire({ icon: 'warning', title: 'Fichier trop lourd', text: 'Limite de 5 Mo maximum.' });
                 input.value = ""; updateLabel(input); return;
             }
             updateLabel(input);
@@ -215,37 +392,106 @@
 
         function updateLabel(input) {
             const label = document.getElementById('label-' + input.id);
+            const parentBlock = input.parentElement.querySelector('label');
             if (input.files.length > 0) {
                 label.innerText = input.files[0].name;
-                input.parentElement.querySelector('label').classList.add('border-blue-500', 'bg-blue-50');
+                parentBlock.classList.add('border-blue-500', 'bg-blue-50');
+                parentBlock.classList.remove('border-slate-300', 'bg-slate-50');
             } else {
                 label.innerText = "";
-                input.parentElement.querySelector('label').classList.remove('border-blue-500', 'bg-blue-50');
+                parentBlock.classList.remove('border-blue-500', 'bg-blue-50');
+                parentBlock.classList.add('border-slate-300', 'bg-slate-50');
             }
         }
 
         async function handleApply(e) {
             e.preventDefault();
-            const btn = document.getElementById('btnSubmit');
+            const btn = document.getElementById('btn-submit');
+            
+            const cvFile = document.getElementById('cv').files[0];
+            if (!cvFile) {
+                return Swal.fire('Attention', 'Le CV est obligatoire.', 'warning');
+            }
+
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Transmission...';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Traitement et Envoi...';
+            
+            Swal.fire({
+                title: 'Finalisation de votre dossier',
+                text: 'Conversion de vos documents en PDF sécurisé...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
 
             try {
-                const response = await fetch(API_URL, { method: 'POST', body: new FormData(e.target) });
+                const formData = new FormData(e.target);
+
+                const fileFields =['cv', 'diploma', 'lm', 'id_card'];
+                for (let field of fileFields) {
+                    const fileInput = document.getElementById(field);
+                    if (fileInput && fileInput.files.length > 0) {
+                        const originalFile = fileInput.files[0];
+                        if (originalFile.type.startsWith('image/')) {
+                            const pdfFile = await convertImageToPDF(originalFile);
+                            formData.set(field, pdfFile); 
+                        }
+                    }
+                }
+
+                Swal.update({ text: 'Envoi sécurisé au service RH...' });
+
+                const response = await fetch(API_URL, { method: 'POST', body: formData });
+                
                 if (response.ok) {
-                    Swal.fire({ icon: 'success', title: 'Candidature reçue', confirmButtonColor: '#2563eb' });
-                    e.target.reset();
-                    document.querySelectorAll('[id^="label-"]').forEach(el => el.innerText = "");
-                    document.querySelectorAll('label').forEach(el => el.classList.remove('border-blue-500', 'bg-blue-50'));
-                } else { throw new Error(); }
+                    Swal.fire({ 
+                        icon: 'success', 
+                        title: 'Félicitations !', 
+                        text: 'Votre candidature a été transmise avec succès. Nos équipes vous contacteront prochainement.',
+                        confirmButtonColor: '#10b981' 
+                    }).then(() => {
+                        window.location.reload(); 
+                    });
+                } else { 
+                    throw new Error(); 
+                }
             } catch (err) {
-                Swal.fire({ icon: 'error', title: 'Erreur technique' });
+                Swal.fire({ icon: 'error', title: 'Erreur technique', text: 'Impossible de joindre le serveur. Réessayez plus tard.' });
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = 'Soumettre ma candidature <i class="fa-solid fa-arrow-right"></i>';
+                btn.innerHTML = '<i class="fa-solid fa-check-double mr-2"></i> Terminer';
             }
+        }
+
+        // ==========================================
+        // 5. FONCTION ADMIN : LIEN DE PARTAGE
+        // ==========================================
+        function copyConfiguredLink() {
+            // Anciens champs
+            const hDob = document.getElementById('check-dob').checked ? '1' : '0';
+            const hLm = document.getElementById('check-lm').checked ? '1' : '0';
+            const hDip = document.getElementById('check-dip').checked ? '1' : '0';
+            const hId = document.getElementById('check-id').checked ? '1' : '0';
+            // Nouveaux champs
+            const hAddr = document.getElementById('check-addr').checked ? '1' : '0';
+            const hExp = document.getElementById('check-exp').checked ? '1' : '0';
+            const hDisp = document.getElementById('check-disp').checked ? '1' : '0';
+            const hSal = document.getElementById('check-sal').checked ? '1' : '0';
+            
+            const baseUrl = window.location.origin + window.location.pathname;
+            
+            // URL complète avec tous les paramètres
+            const finalUrl = `${baseUrl}?shared=1&hdob=${hDob}&hlm=${hLm}&hdip=${hDip}&hid=${hId}&haddr=${hAddr}&hexp=${hExp}&hdisp=${hDisp}&hsal=${hSal}`;
+            
+            navigator.clipboard.writeText(finalUrl).then(() => {
+                Swal.fire({ 
+                    icon: 'success', 
+                    title: 'Lien Candidat prêt !', 
+                    text: 'Le lien configuré avec vos masquages a été copié.', 
+                    confirmButtonColor: '#2563eb' 
+                });
+                document.getElementById('configPanel').classList.add('hidden');
+            });
         }
     </script>
 </body>
 </html>
-
