@@ -10,6 +10,8 @@
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- NOUVEAU : Bibliothèque pour fusionner les PDF et les images -->
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
@@ -135,11 +137,12 @@
                 <!-- ÉTAPE 3 : FICHIERS -->
                 <div id="step-3" class="step-container space-y-6">
                     <h2 class="text-xl font-black text-slate-800 mb-2">Vos documents</h2>
-                    <p class="text-xs text-slate-500 mb-6 italic"><i class="fa-solid fa-magic text-blue-500"></i> Les photos (JPG/PNG) seront automatiquement converties en PDF propre.</p>
+                    <p class="text-xs text-slate-500 mb-6 italic"><i class="fa-solid fa-magic text-blue-500"></i> Les sélections multiples sont autorisées. Tout sera fusionné en un seul PDF propre.</p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="relative group">
-                            <input type="file" name="cv" id="cv" class="hidden" accept="image/*,application/pdf" onchange="validateFile(this)" required>
+                            <!-- AJOUT MULTIPLE ICI -->
+                            <input type="file" name="cv" id="cv" class="hidden" accept="image/*,application/pdf" multiple onchange="validateFile(this)" required>
                             <label for="cv" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 bg-slate-50 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all h-full text-center group-hover:shadow-md">
                                 <i class="fa-solid fa-file-pdf text-slate-300 text-2xl mb-3 group-hover:text-blue-500 transition-colors"></i>
                                 <span class="text-xs font-black text-slate-600 uppercase tracking-wide">CV (Obligatoire)</span>
@@ -147,15 +150,17 @@
                             </label>
                         </div>
                         <div id="field-dip" class="relative group">
-                            <input type="file" name="diploma" id="diploma" class="hidden" accept="image/*,application/pdf" onchange="validateFile(this)">
+                            <!-- AJOUT MULTIPLE ICI -->
+                            <input type="file" name="diploma" id="diploma" class="hidden" accept="image/*,application/pdf" multiple onchange="validateFile(this)">
                             <label for="diploma" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 bg-slate-50 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all h-full text-center group-hover:shadow-md">
                                 <i class="fa-solid fa-graduation-cap text-slate-300 text-2xl mb-3 group-hover:text-blue-500 transition-colors"></i>
-                                <span class="text-xs font-black text-slate-600 uppercase tracking-wide">Dernier Diplôme</span>
+                                <span class="text-xs font-black text-slate-600 uppercase tracking-wide">Derniers Diplômes</span>
                                 <span id="label-diploma" class="text-[10px] text-blue-600 font-bold mt-2 truncate w-full px-2"></span>
                             </label>
                         </div>
                         <div id="field-lm" class="relative group">
-                            <input type="file" name="lm" id="lm" class="hidden" accept="image/*,application/pdf" onchange="validateFile(this)">
+                            <!-- AJOUT MULTIPLE ICI -->
+                            <input type="file" name="lm" id="lm" class="hidden" accept="image/*,application/pdf" multiple onchange="validateFile(this)">
                             <label for="lm" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 bg-slate-50 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all h-full text-center group-hover:shadow-md">
                                 <i class="fa-solid fa-envelope-open-text text-slate-300 text-2xl mb-3 group-hover:text-blue-500 transition-colors"></i>
                                 <span class="text-xs font-black text-slate-600 uppercase tracking-wide">Lettre de Motiv.</span>
@@ -163,10 +168,11 @@
                             </label>
                         </div>
                         <div id="field-id" class="relative group">
-                            <input type="file" name="id_card" id="id_card" class="hidden" accept="image/*,application/pdf" onchange="validateFile(this)">
+                            <!-- AJOUT MULTIPLE ICI -->
+                            <input type="file" name="id_card" id="id_card" class="hidden" accept="image/*,application/pdf" multiple onchange="validateFile(this)">
                             <label for="id_card" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 bg-slate-50 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all h-full text-center group-hover:shadow-md">
                                 <i class="fa-solid fa-id-card text-slate-300 text-2xl mb-3 group-hover:text-blue-500 transition-colors"></i>
-                                <span class="text-xs font-black text-slate-600 uppercase tracking-wide">Pièce Identité</span>
+                                <span class="text-xs font-black text-slate-600 uppercase tracking-wide">Pièces d'Identité</span>
                                 <span id="label-id_card" class="text-[10px] text-blue-600 font-bold mt-2 truncate w-full px-2"></span>
                             </label>
                         </div>
@@ -264,12 +270,10 @@
                 if(adminBtn) adminBtn.remove(); 
             }
 
-            // Fonction pour masquer ET retirer le 'required' pour ne pas bloquer le formulaire
             const hideField = (id) => {
                 const el = document.getElementById(id);
                 if(el) {
                     el.classList.add('hidden');
-                    // On retire le required s'il y en a un à l'intérieur
                     const inputs = el.querySelectorAll('input, select, textarea');
                     inputs.forEach(inp => inp.removeAttribute('required'));
                 }
@@ -280,7 +284,6 @@
             if (params.get('hlm') === '1') hideField('field-lm');
             if (params.get('hdip') === '1') hideField('field-dip');
             if (params.get('hid') === '1') hideField('field-id');
-            // Les nouveaux champs :
             if (params.get('haddr') === '1') hideField('field-addr');
             if (params.get('hexp') === '1') hideField('field-exp');
             if (params.get('hdisp') === '1') hideField('field-disp');
@@ -315,11 +318,9 @@
 
             currentStep += direction;
             
-            // Gestion de l'affichage des sections
             document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
             document.getElementById(`step-${currentStep}`).classList.add('active');
 
-            // Mise à jour de la barre de progression
             const titles =["", "Identité", "Profil Pro", "Documents"];
             document.getElementById('step-title').innerText = titles[currentStep];
 
@@ -342,50 +343,66 @@
             if (currentStep > 2) document.getElementById('line-2').classList.replace('bg-slate-200', 'bg-emerald-500');
             else document.getElementById('line-2').classList.replace('bg-emerald-500', 'bg-slate-200');
 
-            // Gestion des boutons
             document.getElementById('btn-prev').style.visibility = currentStep === 1 ? 'hidden' : 'visible';
             document.getElementById('btn-next').classList.toggle('hidden', currentStep === 3);
             document.getElementById('btn-submit').classList.toggle('hidden', currentStep !== 3);
         }
 
         // ==========================================
-        // 3. LOGIQUE CONVERSION IMAGE VERS PDF
+        // 3. FUSION INTELLIGENTE MULTI-FICHIERS EN UN PDF
         // ==========================================
-        async function convertImageToPDF(file) {
-            return new Promise((resolve) => {
-                if (file.type === 'application/pdf') return resolve(file);
+        async function mergeFilesToSinglePDF(fileList) {
+            const { PDFDocument } = PDFLib;
+            // On crée un nouveau document PDF vide
+            const mergedPdf = await PDFDocument.create();
 
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const { jsPDF } = window.jspdf;
-                        const orientation = img.width > img.height ? 'l' : 'p';
-                        const pdf = new jsPDF(orientation, 'mm', 'a4');
-                        const pdfWidth = pdf.internal.pageSize.getWidth();
-                        const pdfHeight = (img.height * pdfWidth) / img.width;
+            for (let i = 0; i < fileList.length; i++) {
+                const file = fileList[i];
+                const arrayBuffer = await file.arrayBuffer();
 
-                        pdf.addImage(img.src, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                        const pdfBlob = pdf.output('blob');
-                        const newFileName = file.name.split('.')[0] + '_converti.pdf';
-                        const newFile = new File([pdfBlob], newFileName, { type: 'application/pdf' });
-                        
-                        resolve(newFile);
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
+                if (file.type === 'application/pdf') {
+                    // Si c'est déjà un PDF, on copie toutes ses pages dans le nouveau
+                    const loadedPdf = await PDFDocument.load(arrayBuffer);
+                    const copiedPages = await mergedPdf.copyPages(loadedPdf, loadedPdf.getPageIndices());
+                    copiedPages.forEach((page) => mergedPdf.addPage(page));
+                } 
+                else if (file.type.startsWith('image/')) {
+                    // Si c'est une image, on l'incruste sur une nouvelle page à la taille exacte
+                    let img;
+                    if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
+                        img = await mergedPdf.embedJpg(arrayBuffer);
+                    } else if (file.type === 'image/png') {
+                        img = await mergedPdf.embedPng(arrayBuffer);
+                    } else {
+                        continue; // On ignore les formats non gérés
+                    }
+                    
+                    const page = mergedPdf.addPage([img.width, img.height]);
+                    page.drawImage(img, { x: 0, y: 0, width: img.width, height: img.height });
+                }
+            }
+
+            // On génère et retourne le PDF final
+            const pdfBytes = await mergedPdf.save();
+            return new Blob([pdfBytes], { type: 'application/pdf' });
         }
 
         // ==========================================
         // 4. GESTION DES FICHIERS & SOUMISSION
         // ==========================================
         function validateFile(input) {
-            const file = input.files[0];
-            if (file && file.size > 5 * 1024 * 1024) {
-                Swal.fire({ icon: 'warning', title: 'Fichier trop lourd', text: 'Limite de 5 Mo maximum.' });
-                input.value = ""; updateLabel(input); return;
+            let totalSize = 0;
+            // On calcule le poids de tous les fichiers combinés
+            for(let i=0; i<input.files.length; i++) {
+                totalSize += input.files[i].size;
+            }
+            
+            // Sécurité : 8 Mo maximum par bloc de documents
+            if (totalSize > 8 * 1024 * 1024) {
+                Swal.fire({ icon: 'warning', title: 'Fichiers trop lourds', text: 'La taille cumulée dépasse 8 Mo. Réduisez la taille ou le nombre de vos fichiers.' });
+                input.value = ""; 
+                updateLabel(input); 
+                return;
             }
             updateLabel(input);
         }
@@ -393,8 +410,13 @@
         function updateLabel(input) {
             const label = document.getElementById('label-' + input.id);
             const parentBlock = input.parentElement.querySelector('label');
-            if (input.files.length > 0) {
+            
+            if (input.files.length === 1) {
                 label.innerText = input.files[0].name;
+                parentBlock.classList.add('border-blue-500', 'bg-blue-50');
+                parentBlock.classList.remove('border-slate-300', 'bg-slate-50');
+            } else if (input.files.length > 1) {
+                label.innerText = `${input.files.length} fichiers joints prêts à fusionner`;
                 parentBlock.classList.add('border-blue-500', 'bg-blue-50');
                 parentBlock.classList.remove('border-slate-300', 'bg-slate-50');
             } else {
@@ -414,11 +436,11 @@
             }
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Traitement et Envoi...';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Traitement...';
             
             Swal.fire({
-                title: 'Finalisation de votre dossier',
-                text: 'Conversion de vos documents en PDF sécurisé...',
+                title: 'Finalisation du dossier',
+                text: 'Assemblage et sécurisation de vos documents...',
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading()
             });
@@ -426,15 +448,23 @@
             try {
                 const formData = new FormData(e.target);
 
-                const fileFields =['cv', 'diploma', 'lm', 'id_card'];
+                const fileFields = ['cv', 'diploma', 'lm', 'id_card'];
+                
+                // Pour chaque bloc de fichiers, on fusionne !
                 for (let field of fileFields) {
                     const fileInput = document.getElementById(field);
+                    
                     if (fileInput && fileInput.files.length > 0) {
-                        const originalFile = fileInput.files[0];
-                        if (originalFile.type.startsWith('image/')) {
-                            const pdfFile = await convertImageToPDF(originalFile);
-                            formData.set(field, pdfFile); 
-                        }
+                        // On retire les fichiers natifs envoyés par défaut par le navigateur
+                        formData.delete(field); 
+                        
+                        Swal.update({ text: `Fusion et conversion pour la section : ${field.toUpperCase()}...` });
+                        
+                        // Lancement de la fusion intelligente
+                        const mergedBlob = await mergeFilesToSinglePDF(fileInput.files);
+                        
+                        // On attache le fichier unique final
+                        formData.append(field, mergedBlob, `${field}_fusionne.pdf`);
                     }
                 }
 
@@ -455,6 +485,7 @@
                     throw new Error(); 
                 }
             } catch (err) {
+                console.error(err);
                 Swal.fire({ icon: 'error', title: 'Erreur technique', text: 'Impossible de joindre le serveur. Réessayez plus tard.' });
             } finally {
                 btn.disabled = false;
